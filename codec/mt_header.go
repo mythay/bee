@@ -1,10 +1,5 @@
 package codec
 
-import (
-	"bufio"
-	"io"
-)
-
 //
 // RPC (Remote Procedure Call) definitions
 //
@@ -83,25 +78,15 @@ const (
 	MT_RPC_ERR_LENGTH     = 4 // invalid length
 )
 
-type decoder struct {
-	r  io.Reader
-	br *bufio.Reader
-}
-
-type cmd struct {
+type Cmd struct {
 	cmd0 uint8
 	cmd1 uint8
 }
 
-type header struct {
-	length uint8
-	cmd
-}
-
-func (c *cmd) getCmdType() uint8 {
+func (c *Cmd) GetCmdType() uint8 {
 	return c.cmd0 & MT_RPC_CMD_TYPE_MASK
 }
 
-func (c *cmd) getCmdID() uint16 {
+func (c *Cmd) GetCmdID() uint16 {
 	return uint16(c.cmd0&MT_RPC_SUBSYSTEM_MASK)<<8 | uint16(c.cmd1)
 }

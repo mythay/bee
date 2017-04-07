@@ -1,10 +1,6 @@
 package codec
 
-import (
-	"bytes"
-	"encoding/binary"
-	"errors"
-)
+import "reflect"
 
 const (
 	/* AREQ from host */
@@ -258,14 +254,12 @@ type RamReadFormat struct {
 
 type RamReadSrspFormat struct {
 	Status uint8
-	Len    uint8
-	Value  [128]uint8
+	Value  []uint8 `lentype:"uint8"`
 }
 
 type RamWriteFormat struct {
 	Address uint16
-	Len     uint8
-	Value   [128]uint8
+	Value   []uint8 `lentype:"uint8"`
 }
 
 type ResetReqFormat struct {
@@ -297,19 +291,19 @@ type OsalNvReadFormat struct {
 
 type OsalNvReadSrspFormat struct {
 	Status uint8
-	Value  []uint8 `array:"yes",lentype:"uint8",size:"248"`
+	Value  []uint8 `lentype:"uint8" `
 }
 
 type OsalNvWriteFormat struct {
 	Id     uint16
 	Offset uint8
-	Value  []uint8 `array:"yes",lentype:"uint8",size:"246"`
+	Value  []uint8 ` lentype:"uint8" `
 }
 
 type OsalNvItemInitFormat struct {
 	Id       uint16
 	ItemLen  uint16
-	InitData []uint8 `array:"yes",lentype:"uint8",size:"245"`
+	InitData []uint8 ` lentype:"uint8" `
 }
 
 type OsalNvDeleteFormat struct {
@@ -407,23 +401,37 @@ type GetAntennaModeSrspFormat struct {
 }
 
 type SENvChangeIndFormat struct {
-	Len   uint8
-	Value [MT_MAX_NV_CHANGE_NTF_ITEMS]uint16
+	Value []uint16 `lentype:"uint8" `
 }
 
-func (nv *SENvChangeIndFormat) unmarshall(p []byte) error {
-	buf := bytes.NewReader(p)
-	if len(p) > len(nv.Value)*2 || len(p) < 1 {
-		return errors.New("unmarshall error")
-	}
-	binary.Read(buf, binary.LittleEndian, &nv.Len)
+func init() {
+	addSubCommandMap([]mapItem{
+		{MT_RPC_SYS_SYS, MT_SYS_PING, MT_SYS_PING, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, nil, reflect.TypeOf(PingSrspFormat{}),
+			"SYS_PING"},
+		{MT_RPC_SYS_SYS, MT_SYS_SET_EXTADDR, MT_SYS_SET_EXTADDR, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(SetExtAddrFormat{}), nil,
+			"SYS_SET_EXTADDR"},
+		{MT_RPC_SYS_SYS, MT_SYS_GET_EXTADDR, MT_SYS_GET_EXTADDR, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, nil, reflect.TypeOf(GetExtAddrSrspFormat{}),
+			"SYS_GET_EXTADDR"},
+		{MT_RPC_SYS_SYS, MT_SYS_RAM_READ, MT_SYS_RAM_READ, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(RamReadFormat{}), reflect.TypeOf(RamReadSrspFormat{}),
+			"SYS_RAM_READ"},
+		{MT_RPC_SYS_SYS, MT_SYS_RAM_WRITE, MT_SYS_RAM_WRITE, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(RamWriteFormat{}), nil,
+			"SYS_RAM_WRITE"},
+		{MT_RPC_SYS_SYS, MT_SYS_RESET_REQ, MT_SYS_RESET_IND, MT_RPC_CMD_AREQ, 0, reflect.TypeOf(ResetReqFormat{}), reflect.TypeOf(ResetIndFormat{}),
+			"SYS_RESET_REQ"},
+		{MT_RPC_SYS_SYS, MT_SYS_VERSION, MT_SYS_VERSION, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, nil, reflect.TypeOf(VersionSrspFormat{}),
+			"SYS_VERSION"},
+		{MT_RPC_SYS_SYS, MT_SYS_OSAL_NV_READ, MT_SYS_OSAL_NV_READ, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(OsalNvReadFormat{}), reflect.TypeOf(OsalNvReadSrspFormat{}),
+			"SYS_OSAL_NV_READ"},
+		{MT_RPC_SYS_SYS, MT_SYS_OSAL_NV_WRITE, MT_SYS_OSAL_NV_WRITE, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(OsalNvWriteFormat{}), nil,
+			"SYS_OSAL_NV_WRITE"},
 
-	err := binary.Read(buf, binary.LittleEndian, nv.Value[:nv.Len])
+		{MT_RPC_SYS_SYS, MT_SYS_SET_TX_POWER, MT_SYS_SET_TX_POWER, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(SetTxPowerFormat{}), reflect.TypeOf(SetTxPowerSrspFormat{}),
+			"SYS_SET_TX_POWER"},
 
-	if err != nil {
-		return errors.New("unmarshall error")
-	}
+		{MT_RPC_SYS_SYS, MT_SYS_GET_ANTENNA_MODE, MT_SYS_GET_ANTENNA_MODE, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, nil, reflect.TypeOf(GetAntennaModeSrspFormat{}),
+			"SYS_GET_ANTENNA_MODE"},
 
-	return nil
-
+		{MT_RPC_SYS_SYS, 0xff, MT_SYS_SCHNEIDER_NV_CHANGE_IND, 0, 0, nil, reflect.TypeOf(SENvChangeIndFormat{}),
+			"SYS_SCHNEIDER_NV_CHANGE_IND"},
+	})
 }
