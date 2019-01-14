@@ -1,5 +1,7 @@
 package codec
 
+import "reflect"
+
 const (
 	// SAPI MT Command Identifiers
 	/* AREQ from Host */
@@ -170,112 +172,11 @@ type StartCnfFormat struct {
 	Status uint8
 }
 
-//func (self *Client) ZbSystemReset() error {
-//	_, err := self.Call(cmd{MT_RPC_SYS_SAPI, MT_SAPI_SYS_RESET})
-//	return err
-//}
-//func (self *Client) ZbAppRegisterReq(req *AppRegisterReqFormat) error {
-//	_, err := self.Call(cmd{MT_RPC_SYS_SAPI, MT_SAPI_APP_REGISTER_REQ})
-//	return err
-//}
-//func (self *Client) ZbStartReq() error {
-//	_, err := self.Call(cmd{MT_RPC_SYS_SAPI, MT_SAPI_START_REQ})
-//	return err
-//}
-//func (self *Client) ZbPermitJoiningReq(req *PermitJoiningReqFormat) error {
-
-//	_, err := self.Call(MT_RPC_SYS_SAPI, MT_SAPI_PERMIT_JOINING_REQ, req)
-//	return err
-//}
-
-//func (self *Client) ZbBindDevice(req *BindDeviceFormat) error {
-//	_, err := self.Call(MT_RPC_SYS_SAPI, MT_SAPI_BIND_DEVICE, req)
-//	return err
-//}
-
-//func (self *Client) ZbAllowBind(req *AllowBindFormat) error {
-//	_, err := self.Call(MT_RPC_SYS_SAPI, MT_SAPI_ALLOW_BIND, req)
-//	return err
-//}
-
-//func (self *Client) ZbSendDataReq(req *SendDataReqFormat) error {
-//	_, err := self.Call(MT_RPC_SYS_SAPI, MT_SAPI_SEND_DATA_REQ, req)
-//	return err
-//}
-
-//func (self *Client) ZbFindDeviceReq(req *FindDeviceReqFormat) error {
-//	_, err := self.Call(MT_RPC_SYS_SAPI, MT_SAPI_FIND_DEVICE_REQ, req)
-//	return err
-//}
-
-// func (self *Client) ZbWriteConfiguration(req *WriteConfigurationFormat) error {
-// 	_, err := self.Call(req)
-// 	return err
-// }
-
-// func (c *Client) zbWriteConfig(configId uint8, value ...interface{}) error {
-// 	buf := &bytes.Buffer{}
-// 	var err error
-// 	for _, v := range value {
-// 		err = binary.Write(buf, binary.LittleEndian, v)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-// 	req := &WriteConfigurationFormat{ConfigId: configId}
-// 	if buf.Len() > len(req.Value) {
-// 		req.Len = uint8(len(req.Value))
-// 	}
-// 	copy(req.Value[:], buf.Bytes())
-// 	return c.ZbWriteConfiguration(req)
-// }
-
-// func (c *Client) zbReadDeviceInfo(configID uint8, value ...interface{}) error {
-// 	resp, err := c.ZbGetDeviceInfo(&GetDeviceInfoFormat{configID})
-// 	if err != nil {
-// 		return err
-// 	}
-// 	buf := bytes.NewBuffer(resp.Value[:])
-// 	for _, v := range value {
-// 		err = binary.Read(buf, binary.LittleEndian, v)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
-// 	return nil
-// }
-
-// type errorCheck struct {
-// 	c   *Client
-// 	err error
-// }
-
-// func (c *errorCheck) ecWriteConfig(configId uint8, value ...interface{}) {
-// 	if c.err != nil {
-// 		return
-// 	}
-// 	c.err = c.c.zbWriteConfig(configId, value...)
-// }
-
-// func (c *errorCheck) ecGetDeviceInfo(configId uint8, value ...interface{}) {
-// 	if c.err != nil {
-// 		return
-// 	}
-// 	c.err = c.c.zbReadDeviceInfo(configId, value...)
-// }
-
-// func (self *Client) ZbGetDeviceInfo(req *GetDeviceInfoFormat) (*GetDeviceInfoSrspFormat, error) {
-// 	resp, err := self.Call(req)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return resp.(*GetDeviceInfoSrspFormat), err
-// }
-
-// //func (self *Client) ZbReadConfiguration(req *ReadConfigurationFormat) (*ReadConfigurationSrspFormat, error) {
-// //	resp, err := self.Call(MT_RPC_SYS_SAPI, MT_SAPI_READ_CONFIGURATION, req)
-// //	if err != nil {
-// //		return nil, err
-// //	}
-// //	return resp.(*ReadConfigurationSrspFormat), err
-// //}
+func init() {
+	addSubCommandMap([]mapItem{
+		{MT_RPC_SYS_SAPI, MT_SAPI_GET_DEVICE_INFO, MT_SAPI_GET_DEVICE_INFO, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(GetDeviceInfoFormat{}), reflect.TypeOf(GetDeviceInfoSrspFormat{}),
+			"SAPI_GET_DEVICE_INFO"},
+		{MT_RPC_SYS_SAPI, MT_SAPI_WRITE_CONFIGURATION, MT_SAPI_WRITE_CONFIGURATION, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(WriteConfigurationFormat{}), nil,
+			"SAPI_WRITE_CONFIGURATION"},
+	})
+}

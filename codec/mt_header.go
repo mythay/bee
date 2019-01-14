@@ -83,10 +83,21 @@ type Cmd struct {
 	cmd1 uint8
 }
 
+func NewCmd(cmd0, cmd1 uint8) Cmd {
+	return Cmd{cmd0, cmd1}
+}
+
 func (c *Cmd) GetCmdType() uint8 {
 	return c.cmd0 & MT_RPC_CMD_TYPE_MASK
 }
 
 func (c *Cmd) GetCmdID() uint16 {
 	return uint16(c.cmd0&MT_RPC_SUBSYSTEM_MASK)<<8 | uint16(c.cmd1)
+}
+func (c *Cmd) IsSyncResp() bool {
+	return c.cmd0&MT_RPC_CMD_TYPE_MASK == MT_RPC_CMD_SRSP
+}
+
+func (c *Cmd) IsSyncReq() bool {
+	return c.cmd0&MT_RPC_CMD_TYPE_MASK == MT_RPC_CMD_SREQ
 }

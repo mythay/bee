@@ -26,11 +26,42 @@ const (
 	MT_GP_COMMISSIONING_MODE_RESTRICTIVE = 0x02
 )
 
+type GpdCommissioningNtfParams struct {
+	Address         uint64 /**< Address of the GPD */
+	DeviceId        uint8  /**< GP Device Id. If 0xFE then ManufacturerId & ManufacturerModelId are valid*/
+	Options         uint8  /**< Options related to the command/device */
+	ExtendedOptions uint8  /**< Ignore. For future expansion */
+}
+
+type GpComReplyReqParams struct {
+	Address uint64 /**< Address of the GPD */
+	Options uint8  /**<  */
+}
+
+type GpCmdReqParams struct {
+	SourceEndpoint uint8   /**< The Endpoint for the source (App) */
+	Address        uint64  /**< The Addressing mode to specify how the device communicates with the destination. Must be a GPD address. */
+	GpCommand      uint8   /**< The GP Command Id */
+	Payload        []uint8 `lentype:"uint8" ` /**< The ZGP command formatted payload in LITTLE ENDIAN - (extends beyond bounds) */
+}
+
+type GpdCommissionedNtfParams struct {
+	Event    uint8  /**< Commissioned Event Type */
+	Address  uint64 /**< Address of the GPD */
+	DeviceId uint8  /**< Device ID of the GPD */
+}
+
 type GpSetParamFormat struct {
 	ParamId uint8
 	Value   uint16
 }
 
+type GpSetCommissioningMode struct {
+	Mode       uint8
+	Externsion uint8
+	ModeExit   uint8
+	Window     uint16
+}
 type GpSetParamSrspFormat struct {
 	Status uint8
 }

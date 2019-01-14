@@ -40,7 +40,7 @@ func getItemFromCmd(m map[uint16]*mapItem, cmd Cmd) (*mapItem, bool) {
 	return v, ok
 }
 
-func getCmdFromRequest(req interface{}) (Cmd, bool) {
+func GetCmdFromRequest(req interface{}) (Cmd, bool) {
 	st := reflect.TypeOf(req)
 	if st.Kind() == reflect.Ptr { // the req may be struct address
 		st = st.Elem()
@@ -52,7 +52,7 @@ func getCmdFromRequest(req interface{}) (Cmd, bool) {
 	return Cmd{}, false
 }
 
-func getCmdFromRespone(req interface{}) (Cmd, bool) {
+func GetCmdFromRespone(req interface{}) (Cmd, bool) {
 	st := reflect.TypeOf(req)
 	if st.Kind() == reflect.Ptr { // the req may be struct address
 		st = st.Elem()
@@ -72,7 +72,7 @@ func (c *Cmd) getReqType() (uint8, bool) {
 	return t.reqT, true
 }
 
-func (c *Cmd) addReqType() bool {
+func (c *Cmd) AddReqType() bool {
 	t, ok := c.getReqType()
 	if !ok {
 		return false
@@ -81,7 +81,7 @@ func (c *Cmd) addReqType() bool {
 	return true
 }
 
-func (c *Cmd) isRespCmdMatch(respCmd Cmd) bool {
+func (c *Cmd) IsRespCmdMatch(respCmd Cmd) bool {
 	reqItem, reqOk := getItemFromCmd(_reqCmdMap, *c)
 	respItem, respOk := getItemFromCmd(_respCmdMap, respCmd)
 	return reqOk && respOk && reqItem == respItem

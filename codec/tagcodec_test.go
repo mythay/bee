@@ -118,4 +118,13 @@ func TestWrite(t *testing.T) {
 
 	})
 
+	t.Run("ResetReqFormat", func(t *testing.T) {
+
+		b := &bytes.Buffer{}
+		err := Write(b, binary.LittleEndian, &ResetReqFormat{1})
+		Expect(err).Should(BeNil(), "must be no error")
+		Expect(b.Bytes()).Should(Equal([]byte{1}), " buffer should equal")
+
+	})
+
 }

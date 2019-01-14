@@ -1,5 +1,7 @@
 package codec
 
+import "reflect"
+
 const (
 	/* SREQ/SRSP */
 	MT_ZDO_NWK_ADDR_REQ        = 0x00
@@ -565,6 +567,20 @@ type MsgCbIncomingFormat struct {
 	ExtAddr      uint64
 	NwkAddr      uint16
 	NotUsed      uint8
+}
+
+func init() {
+	addSubCommandMap([]mapItem{
+		{MT_RPC_SYS_ZDO, MT_ZDO_IEEE_ADDR_REQ, MT_ZDO_IEEE_ADDR_REQ, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(IeeeAddrReqFormat{}), reflect.TypeOf(IeeeAddrReqFormat{}),
+			"ZDO_IEEE_ADDR_REQ"},
+
+		{MT_RPC_SYS_ZDO, MT_ZDO_STARTUP_FROM_APP, MT_ZDO_STARTUP_FROM_APP, MT_RPC_CMD_SREQ, MT_RPC_CMD_SRSP, reflect.TypeOf(StartupFromAppFormat{}), reflect.TypeOf(uint8(0)),
+			"ZDO_STARTUP_FROM_APP"},
+		{MT_RPC_SYS_ZDO, 0xff, MT_ZDO_STATE_CHANGE_IND, 0, 0, nil, reflect.TypeOf(uint8(0)),
+			"ZDO_STATE_CHANGE_IND"},
+		{MT_RPC_SYS_ZDO, 0xff, MT_ZDO_LEAVE_LOCAL_IND, 0, 0, nil, reflect.TypeOf(LeavelocalIndFormat{}),
+			"ZDO_LEAVE_LOCAL_IND"},
+	})
 }
 
 //ZdoInit to start a network, 0 means resume, 1 means new network

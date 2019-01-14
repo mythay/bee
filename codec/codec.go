@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"reflect"
 )
@@ -35,27 +36,27 @@ func NewDecoder(r io.Reader) *Decoder {
 	return &Decoder{r: r, br: bufio.NewReader(r)}
 }
 
-func (dec *Decoder) decodeHeader() (*Cmd, []byte, error) {
+func (dec *Decoder) decodeHeader() (Cmd, []byte, error) {
 	buf := make([]byte, RPC_HDR_LEN+RPC_MAX_LEN+RPC_UART_FCS_LEN)
 	sof, err := dec.br.ReadByte()
 	if err != nil {
-		return nil, nil, ErrIO
+		return Cmd{}, nil, ErrIO
 	}
 
 	if sof != MT_RPC_SOF { //minimum package size
-		return nil, nil, ErrSOF
+		return Cmd{}, nil, ErrSOF
 	}
 
 	for offset := 0; offset < RPC_HDR_LEN; {
 		n, err := dec.br.Read(buf[:RPC_HDR_LEN])
 		if err != nil {
-			return nil, nil, ErrHDR
+			return Cmd{}, nil, ErrHDR
 		}
 		offset += n
 	}
 
 	length := buf[0]
-	c := &Cmd{buf[1], buf[2]}
+	c := Cmd{buf[1], buf[2]}
 
 	for offset := uint8(RPC_HDR_LEN); offset < RPC_HDR_LEN+length+RPC_UART_FCS_LEN; {
 		n, err := dec.br.Read(buf[offset : RPC_HDR_LEN+length+RPC_UART_FCS_LEN])
@@ -66,15 +67,15 @@ func (dec *Decoder) decodeHeader() (*Cmd, []byte, error) {
 	}
 	fcs := buf[length+RPC_HDR_LEN]
 	if calcFcs(buf[:length+RPC_HDR_LEN]) != fcs {
-		return nil, nil, ErrFcs
+		return Cmd{}, nil, ErrFcs
 	}
 	return c, buf[RPC_HDR_LEN : length+RPC_HDR_LEN], nil
 }
 
-func (dec *Decoder) Decode() (*Cmd, interface{}, error) {
+func (dec *Decoder) Decode() (Cmd, interface{}, error) {
 	c, payload, err := dec.decodeHeader()
 	if err != nil {
-		return nil, nil, err
+		return c, nil, err
 	}
 
 	rsp, ok := c.newObject()
@@ -118,9 +119,52 @@ func (dec *Decoder) Decode() (*Cmd, interface{}, error) {
 // 	return err
 // }
 
+type Encoder struct {
+	w io.Writer
+}
+
+func NewEncoder(w io.Writer) *Encoder {
+	return &Encoder{w: w}
+}
+
+func (enc *Encoder) Encode(cmd Cmd, v interface{}) error {
+	tp, ok := cmd.getReqType()
+	if !ok {
+		panic(fmt.Sprintf("error request cmd(%v)", cmd))
+	}
+	cmd.cmd0 |= tp
+	return enc.encodeRaw(cmd, v)
+}
+
+func (enc *Encoder) encodeRaw(cmd Cmd, v interface{}) error {
+	var err error
+
+	buf := &bytes.Buffer{}
+	vbuf := &bytes.Buffer{}
+
+	if v != nil {
+		err = Write(vbuf, binary.LittleEndian, v)
+		if err != nil {
+			return err
+		}
+	}
+	binary.Write(buf, binary.LittleEndian, uint8(MT_RPC_SOF))
+
+	binary.Write(buf, binary.LittleEndian, byte(vbuf.Len()))
+	binary.Write(buf, binary.LittleEndian, cmd)
+	vbuf.WriteTo(buf)
+	fcs := calcFcs(buf.Bytes()[1:])
+	binary.Write(buf, binary.LittleEndian, fcs)
+	_, err = enc.w.Write(buf.Bytes())
+	if err != nil {
+		return ErrIO
+	}
+	return nil
+}
+
+// calculate FCS by XORing all bytes
 func calcFcs(msg []byte) uint8 {
 	var result uint8
-	// calculate FCS by XORing all bytes
 	for _, v := range msg {
 		result ^= v
 	}

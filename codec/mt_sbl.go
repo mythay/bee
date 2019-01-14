@@ -1,5 +1,7 @@
 package codec
 
+import "reflect"
+
 const (
 	MT_SBL_RESET_REQ           = 0x00
 	MT_SBL_WRITE_FLASH_REQ     = 0x01
@@ -34,32 +36,13 @@ type SblStartAppIndFormat struct {
 	SblStatus uint8
 }
 
-// func (client *Client) SblVersionApp() (ind *SblAppVersionIndFormat, err error) {
-// 	ind = &SblAppVersionIndFormat{}
-// 	_, err = client.Call(cmd{MT_RPC_SYS_SBL, MT_SBL_VERSION_APP_REQ})
-// 	if err != nil {
-// 		return
-// 	}
-// 	_, err = client.WaitAsync(ind, time.Second*3)
-// 	return
-// }
-
-// func (client *Client) SblStartApp() (ind *ResetIndFormat, err error) {
-// 	ind = &ResetIndFormat{}
-// 	_, err = client.Call(cmd{MT_RPC_SYS_SBL, MT_SBL_START_APP_REQ})
-// 	if err != nil {
-// 		return
-// 	}
-// 	status := &SblStartAppIndFormat{}
-
-// 	_, err = client.WaitAsync(status, time.Second*3)
-// 	if err != nil {
-// 		return
-// 	}
-// 	if status.SblStatus != 0 {
-// 		err = errors.New("start fail")
-// 		return
-// 	}
-// 	_, err = client.WaitAsync(ind, time.Second*3)
-// 	return
-// }
+func init() {
+	addSubCommandMap([]mapItem{
+		{MT_RPC_SYS_SBL, MT_SBL_START_APP_REQ, MT_SBL_START_APP_RSP, MT_RPC_CMD_AREQ, MT_RPC_CMD_SRSP, nil, reflect.TypeOf(SblStartAppIndFormat{}),
+			"SBL_START_APP_REQ"},
+		{MT_RPC_SYS_SBL, MT_SBL_VERSION_APP_REQ, MT_SBL_VERSION_APP_RESP, MT_RPC_CMD_AREQ, MT_RPC_CMD_SRSP, nil, reflect.TypeOf(SblAppVersionIndFormat{}),
+			"SBL_VERSION_APP_REQ"},
+		{MT_RPC_SYS_SBL, MT_SBL_VERSION_SBL_REQ, MT_SBL_VERSION_SBL_RESP, MT_RPC_CMD_AREQ, MT_RPC_CMD_SRSP, nil, nil,
+			"SBL_VERSION_SBL_REQ"},
+	})
+}
