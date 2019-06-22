@@ -12,6 +12,7 @@ func Test_getCmdFromRequest(t *testing.T) {
 		c, _ := GetCmdFromRequest(&ResetReqFormat{})
 
 		Expect(c).To(Equal(Cmd{MT_RPC_SYS_SYS | MT_RPC_CMD_AREQ, MT_SYS_RESET_REQ}))
+		// Expect(ResetReqFormat).To(Equal(reflect.TypeOf(ResetReqFormat{})))
 
 	})
 

@@ -1,7 +1,7 @@
 package rpc
 
 import (
-	. "github.com/mythay/znp/codec"
+	. "github.com/mythay/bee/codec"
 )
 
 type Sys struct {

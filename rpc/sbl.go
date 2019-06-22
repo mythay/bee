@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	. "github.com/mythay/znp/codec"
+	. "github.com/mythay/bee/codec"
 )
 
 type Sbl struct {

@@ -13,7 +13,7 @@ import (
 
 	"github.com/golang/glog"
 
-	"github.com/mythay/znp/codec"
+	"github.com/mythay/bee/codec"
 )
 
 type rpcCall struct {

@@ -1,4 +1,4 @@
-package znp
+package bee
 
 import (
 	"errors"
@@ -6,8 +6,8 @@ import (
 
 	"fmt"
 
-	"github.com/mythay/znp/codec"
-	. "github.com/mythay/znp/rpc"
+	"github.com/mythay/bee/codec"
+	. "github.com/mythay/bee/rpc"
 	"github.com/tarm/serial"
 )
 
