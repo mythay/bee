@@ -1,9 +1,9 @@
-package znp
+package bee
 
 import (
 	"testing"
 
-	. "github.com/mythay/znp"
+	. "github.com/mythay/bee"
 	. "github.com/onsi/gomega"
 )
 
