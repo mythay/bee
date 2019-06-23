@@ -7,8 +7,8 @@ import (
 	"encoding/binary"
 	"reflect"
 	"testing"
+	"github.com/stretchr/testify/assert"
 
-	. "github.com/onsi/gomega"
 )
 
 type s1 struct {
@@ -84,46 +84,50 @@ func TestRead(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
-	RegisterTestingT(t)
 	t.Run("simple struct", func(t *testing.T) {
+		assert:=assert.New(t)
 		b := &bytes.Buffer{}
 		err := Write(b, binary.BigEndian, &s1{1, 2})
-		Expect(err).Should(BeNil(), "must be no error")
-		Expect(b.Bytes()).Should(Equal([]byte{1, 2}), " buffer should equal")
+		assert.Nil(err,"must be no error")
+		assert.Equal(b.Bytes(),[]byte{1, 2}, " buffer should equal")
 
 	})
 
 	t.Run("uint16 struct big endian", func(t *testing.T) {
+		assert:=assert.New(t)
 		b := &bytes.Buffer{}
 		err := Write(b, binary.BigEndian, &s2{0x0102, 0x0304})
-		Expect(err).Should(BeNil(), "must be no error")
-		Expect(b.Bytes()).Should(Equal([]byte{1, 2, 3, 4}), " buffer should equal")
+		assert.NoError(err,"must be no error")
+		assert.Equal(b.Bytes(),[]byte{1, 2, 3, 4}, " buffer should equal")
 
 	})
 
 	t.Run("uint16 struct little endian", func(t *testing.T) {
+		assert:=assert.New(t)
+
 		b := &bytes.Buffer{}
 		err := Write(b, binary.LittleEndian, &s2{0x0201, 0x0403})
-		Expect(err).Should(BeNil(), "must be no error")
-		Expect(b.Bytes()).Should(Equal([]byte{1, 2, 3, 4}), " buffer should equal")
-
+		assert.NoError(err)
+		assert.Equal(b.Bytes(),[]byte{1, 2, 3, 4}, " buffer should equal")
 	})
 
 	t.Run("struct has length tag", func(t *testing.T) {
+		assert:=assert.New(t)
 
 		b := &bytes.Buffer{}
 		err := Write(b, binary.LittleEndian, &ls1{[]uint8{1, 2, 3}})
-		Expect(err).Should(BeNil(), "must be no error")
-		Expect(b.Bytes()).Should(Equal([]byte{3, 1, 2, 3}), " buffer should equal")
-
+		assert.NoError(err)
+		assert.Equal(b.Bytes(),[]byte{3, 1, 2, 3}, " buffer should equal")
 	})
 
 	t.Run("ResetReqFormat", func(t *testing.T) {
+		assert:=assert.New(t)
 
 		b := &bytes.Buffer{}
 		err := Write(b, binary.LittleEndian, &ResetReqFormat{1})
-		Expect(err).Should(BeNil(), "must be no error")
-		Expect(b.Bytes()).Should(Equal([]byte{1}), " buffer should equal")
+		assert.NoError(err)
+		assert.Equal(b.Bytes(),[]byte{1}, " buffer should equal")
+
 
 	})
 

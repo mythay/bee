@@ -1,12 +1,14 @@
+
 package codec
 
 import (
 	"bytes"
-	"reflect"
 	"testing"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDecoder_decodeHeader(t *testing.T) {
+	assert := assert.New(t)
 	tests := []struct {
 		name    string
 		dec     *Decoder
@@ -23,21 +25,21 @@ func TestDecoder_decodeHeader(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1, err := tt.dec.decodeHeader()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Decoder.decodeHeader() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			
+			if tt.wantErr{
+				assert.NotNil(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Decoder.decodeHeader() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Decoder.decodeHeader() got1 = %v, want %v", got1, tt.want1)
-			}
+			assert.Equal(got,tt.want)
+
+			assert.Equal(got1,tt.want1)
+
 		})
 	}
 }
 
 func TestDecoder_Decode(t *testing.T) {
+	assert := assert.New(t)
+
 	tests := []struct {
 		name    string
 		dec     *Decoder
@@ -55,16 +57,12 @@ func TestDecoder_Decode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, got1, err := tt.dec.Decode()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Decoder.Decode() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			if tt.wantErr{
+				assert.NotNil(err)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Decoder.Decode() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Decoder.Decode() got1 = %v, want %v", got1, tt.want1)
-			}
+			assert.Equal(got,tt.want)
+
+			assert.Equal(got1,tt.want1)
 		})
 	}
 }

@@ -288,7 +288,7 @@ func (client *Client) Close() error {
 	return nil
 }
 
-//gorequest for ansynchonized call
+//gorequest for asynchronized call
 func (client *Client) gorequest(req interface{}) *rpcCall {
 	var call *rpcCall
 	switch v := req.(type) {
